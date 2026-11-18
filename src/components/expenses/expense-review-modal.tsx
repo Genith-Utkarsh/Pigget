@@ -9,6 +9,7 @@ import { useExpenseStore } from '@/lib/stores/expense-store';
 import { useCreateTransaction } from '@/lib/hooks/use-transactions';
 import { DEFAULT_CATEGORIES } from '@/lib/types';
 import { formatCurrency, parseCurrencyInput } from '@/lib/utils/currency';
+import { CategoryIcon } from '@/components/ui/category-icon';
 
 export const ExpenseReviewModal: React.FC = () => {
   const {
@@ -29,8 +30,6 @@ export const ExpenseReviewModal: React.FC = () => {
     DEFAULT_CATEGORIES[0];
 
   const numericAmount = parseCurrencyInput(amount);
-  const estimatedTax = Math.round(numericAmount * 0.05);
-  const totalWithTax = numericAmount + estimatedTax;
 
   const handleConfirm = async () => {
     try {
@@ -98,9 +97,6 @@ export const ExpenseReviewModal: React.FC = () => {
               <div className="text-4xl font-extrabold text-white mt-1">
                 {formatCurrency(numericAmount, currency)}
               </div>
-              <div className="text-xs text-slate-400 mt-1">
-                Net with est. GST (5%): {formatCurrency(totalWithTax, currency)}
-              </div>
             </div>
 
             {/* Details Breakdown */}
@@ -109,8 +105,9 @@ export const ExpenseReviewModal: React.FC = () => {
                 <span className="text-slate-400 flex items-center gap-1.5">
                   <Tag className="w-3.5 h-3.5 text-blue-400" /> Category
                 </span>
-                <span className="font-medium text-slate-200 flex items-center gap-1">
-                  <span>{currentCategory.icon}</span> {currentCategory.name}
+                <span className="font-medium text-slate-200 flex items-center gap-1.5">
+                  <CategoryIcon name={currentCategory.icon} className="w-3.5 h-3.5 text-blue-400" />
+                  <span>{currentCategory.name}</span>
                 </span>
               </div>
 

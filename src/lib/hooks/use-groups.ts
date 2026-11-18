@@ -2,26 +2,25 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Group } from '@/lib/types';
-import { MOCK_GROUPS } from '@/lib/utils/mock-data';
 
-const STORAGE_KEY = 'pigget_groups_v2';
+const STORAGE_KEY = 'pigget_groups_v3';
 
 function getInitialGroups(): Group[] {
   if (typeof window === 'undefined') {
-    return [...MOCK_GROUPS];
+    return [];
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
   } catch (e) {
     console.error('Failed to read groups from localStorage', e);
   }
-  return [...MOCK_GROUPS];
+  return [];
 }
 
 let localGroups: Group[] = getInitialGroups();

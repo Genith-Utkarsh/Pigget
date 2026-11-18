@@ -5,7 +5,6 @@ export type DockModalType =
   | 'scan_pay'
   | 'reports'
   | 'vault'
-  | 'more_tools'
   | null;
 
 export interface ExpenseState {

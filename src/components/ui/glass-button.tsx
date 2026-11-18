@@ -85,7 +85,11 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(
         ) : (
           icon && <span className="shrink-0">{icon}</span>
         )}
-        {children && <span>{children}</span>}
+        {children && (
+          <span className="inline-flex min-w-0 items-center gap-1.5 leading-none">
+            {children}
+          </span>
+        )}
         {!loading && iconRight && <span className="shrink-0">{iconRight}</span>}
       </motion.button>
     );

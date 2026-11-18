@@ -31,7 +31,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       as = "div",
       initial = { opacity: 0, scale: 0.98, y: 8 },
       animate = { opacity: 1, scale: 1, y: 0 },
-      transition = { duration: 0.25, ease: "easeOut" },
+      transition = { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
       ...props
     },
     ref

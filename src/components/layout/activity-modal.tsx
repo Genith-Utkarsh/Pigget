@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTransactions, useDeleteTransaction } from '@/lib/hooks/use-transactions';
 import { formatCurrency } from '@/lib/utils/currency';
 import { TransactionType } from '@/lib/types';
-import { Trash2 } from 'lucide-react';
+import { Trash2, History } from 'lucide-react';
 
 export interface ActivityModalProps {
   isOpen: boolean;
@@ -28,14 +28,14 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ isOpen, onClose })
 
   return (
     <AnimatePresence>
-      <div className="z-50 fixed inset-0 flex justify-center items-end md:items-center p-1 md:p-0">
+      <div className="safe-modal-frame z-50 fixed inset-0 flex justify-center items-end p-3 sm:items-center sm:p-4">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/70 backdrop-blur-md"
+          className="sb-modal-backdrop fixed inset-0"
         />
 
         {/* Dialog Window */}
@@ -49,7 +49,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ isOpen, onClose })
           className="pointer-events-auto flex flex-col w-full max-h-full md:max-h-[720px] relative p-0 h-[88vh] md:h-auto md:w-[90vw] md:max-w-[580px] z-10"
         >
           {/* Inner Card Container */}
-          <div className="bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl backdrop-blur-2xl flex-col overflow-hidden flex h-full sm:h-[min(86dvh,720px)]">
+          <div className="sb-modal-glass bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl backdrop-blur-2xl flex-col overflow-hidden flex h-full sm:h-[min(86dvh,720px)]">
             {/* Header with Title and Identity Badge */}
             <div className="flex flex-col text-left py-6 gap-1 px-6 pb-4 pt-6 select-none">
               <div className="flex flex-wrap items-center gap-2">
@@ -58,7 +58,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ isOpen, onClose })
                 </h2>
                 <div className="flex flex-wrap gap-1">
                   <span className="px-2.5 py-1 text-xs leading-none text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full font-mono">
-                    pigget@hdfc
+                    {transactions.length} {transactions.length === 1 ? 'event' : 'events'}
                   </span>
                 </div>
               </div>
@@ -191,10 +191,16 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({ isOpen, onClose })
             {/* Transactions List or Empty Pullout */}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
               {transactions.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-                  <div className="bg-white/[0.05] border border-white/10 px-4 py-3 rounded-2xl text-sm text-slate-400 font-medium shadow-inner">
-                    No transactions yet...
+                <div className="h-full flex flex-col items-center justify-center p-8 text-center my-auto min-h-[260px]">
+                  <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-slate-400 mb-3">
+                    <History className="w-5 h-5 text-slate-400" />
                   </div>
+                  <h3 className="font-heading font-semibold text-base text-white mb-1">
+                    No Activity Yet
+                  </h3>
+                  <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                    Expenses recorded from the main card, group splits, and khata entries will appear here in real time.
+                  </p>
                 </div>
               ) : (
                 transactions.map((tx) => {

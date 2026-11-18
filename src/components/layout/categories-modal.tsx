@@ -6,6 +6,7 @@ import { DEFAULT_CATEGORIES } from '@/lib/types';
 import { useTransactions } from '@/lib/hooks/use-transactions';
 import { formatCurrency } from '@/lib/utils/currency';
 import { useExpenseStore } from '@/lib/stores/expense-store';
+import { CategoryIcon } from '@/components/ui/category-icon';
 
 export interface CategoriesModalProps {
   isOpen: boolean;
@@ -21,12 +22,16 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
 
   // Calculate spent per category
   const categorySpentMap: Record<string, number> = {};
+  const categoryCountMap: Record<string, number> = {};
   transactions
     .filter((tx) => tx.type === 'PERSONAL' || tx.type === 'GROUP_SPLIT')
     .forEach((tx) => {
-      const cat = tx.category || 'Other';
+      const cat = tx.category || 'General Spend';
       categorySpentMap[cat] = (categorySpentMap[cat] || 0) + Number(tx.totalAmount);
+      categoryCountMap[cat] = (categoryCountMap[cat] || 0) + 1;
     });
+
+  const totalSpent = Object.values(categorySpentMap).reduce((a, b) => a + b, 0) || 1;
 
   const filteredCategories = DEFAULT_CATEGORIES.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -34,13 +39,13 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
 
   return (
     <AnimatePresence>
-      <div className="z-50 fixed inset-0 flex justify-center items-end md:items-center p-1 md:p-0">
+      <div className="safe-modal-frame z-50 fixed inset-0 flex justify-center items-end p-3 sm:items-center sm:p-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/75 backdrop-blur-md"
+          className="sb-modal-backdrop fixed inset-0"
         />
 
         <motion.div
@@ -49,7 +54,7 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', stiffness: 360, damping: 28 }}
-          className="relative z-10 w-full max-h-[85vh] md:max-w-xl bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
+          className="sb-modal-glass relative z-10 w-full max-h-[85vh] md:max-w-xl bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
@@ -61,7 +66,7 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
                 </span>
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Dynamic budget limits & live spending progress.
+                Live spending envelopes & category breakdown.
               </p>
             </div>
 
@@ -87,8 +92,8 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
           <div className="overflow-y-auto space-y-2 pr-1 max-h-[50vh] scrollbar-thin">
             {filteredCategories.map((cat) => {
               const spent = categorySpentMap[cat.name] || 0;
-              const budget = cat.budget || 10000;
-              const percentage = Math.min(100, Math.round((spent / budget) * 100));
+              const count = categoryCountMap[cat.name] || 0;
+              const percentage = totalSpent > 0 ? Math.min(100, Math.round((spent / totalSpent) * 100)) : 0;
 
               return (
                 <div
@@ -102,13 +107,14 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-10 h-10 rounded-[14px] flex items-center justify-center text-xl border shadow-inner"
+                      className="w-10 h-10 rounded-[14px] flex items-center justify-center border shadow-inner transition-transform group-hover:scale-105"
                       style={{
-                        backgroundColor: `${cat.color}20`,
-                        borderColor: `${cat.color}40`,
+                        backgroundColor: `${cat.color}15`,
+                        borderColor: `${cat.color}35`,
+                        color: cat.color,
                       }}
                     >
-                      {cat.icon}
+                      <CategoryIcon name={cat.icon} className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-slate-200 group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
@@ -117,7 +123,7 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
                       <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
                         <span>Spent: {formatCurrency(spent, 'INR')}</span>
                         <span>•</span>
-                        <span>Cap: {formatCurrency(budget, 'INR', { compact: true })}</span>
+                        <span>{count} {count === 1 ? 'expense' : 'expenses'}</span>
                       </div>
                     </div>
                   </div>
@@ -131,8 +137,7 @@ export const CategoriesModal: React.FC<CategoriesModalProps> = ({ isOpen, onClos
                         className="h-full rounded-full transition-all duration-500"
                         style={{
                           width: `${percentage}%`,
-                          backgroundColor:
-                            percentage > 90 ? '#f43f5e' : percentage > 70 ? '#f59e0b' : cat.color,
+                          backgroundColor: cat.color,
                         }}
                       />
                     </div>

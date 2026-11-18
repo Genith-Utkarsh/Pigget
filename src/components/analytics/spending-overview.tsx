@@ -1,40 +1,39 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { TrendingDown, ChevronRight, PieChart } from 'lucide-react';
+import { ChevronRight, PieChart } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { useTransactions } from '@/lib/hooks/use-transactions';
-import { calculateMonthlyBurn } from '@/lib/utils/calculations';
 import { formatCurrency } from '@/lib/utils/currency';
 import { DEFAULT_CATEGORIES } from '@/lib/types';
+import { CategoryIcon } from '@/components/ui/category-icon';
 import Link from 'next/link';
 
 export const SpendingOverview: React.FC = () => {
   const { data: transactions = [] } = useTransactions();
-
-  const burn = calculateMonthlyBurn(transactions, undefined, undefined, 50000);
 
   // Group transactions by category for top 5 breakdown
   const categoryTotals: Record<string, number> = {};
   transactions
     .filter((tx) => tx.type === 'PERSONAL' || tx.type === 'GROUP_SPLIT')
     .forEach((tx) => {
-      const cat = tx.category || 'Other';
+      const cat = tx.category || 'General Spend';
       categoryTotals[cat] = (categoryTotals[cat] || 0) + Number(tx.totalAmount);
     });
+
+  const totalSpent = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
 
   const sortedCategories = Object.entries(categoryTotals)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([name, total]) => {
       const config = DEFAULT_CATEGORIES.find((c) => c.name === name);
-      const percentage = burn.spent > 0 ? Math.round((total / burn.spent) * 100) : 0;
+      const percentage = totalSpent > 0 ? Math.round((total / totalSpent) * 100) : 0;
       return {
         name,
         total,
         percentage,
-        icon: config?.icon || '📋',
+        icon: config?.icon || 'other',
         color: config?.color || '#3b82f6',
       };
     });
@@ -50,10 +49,7 @@ export const SpendingOverview: React.FC = () => {
           <div>
             <h3 className="text-sm font-semibold text-slate-100">Monthly Burn Overview</h3>
             <div className="text-[11px] text-slate-400 flex items-center gap-1">
-              <span className="flex items-center text-emerald-400 font-medium">
-                <TrendingDown className="w-3 h-3 inline mr-0.5" /> 8.4%
-              </span>
-              <span>vs last month</span>
+              <span>{transactions.length} total events • Live Ledger</span>
             </div>
           </div>
         </div>
@@ -67,39 +63,18 @@ export const SpendingOverview: React.FC = () => {
         </Link>
       </div>
 
-      {/* Monthly Budget Progress Bar */}
+      {/* Monthly Outflow Summary */}
       <div className="bg-[#17181e] p-3.5 rounded-[20px] border border-white/[0.06] space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-400">Spent this month</span>
+          <span className="text-slate-400">Total Outflow</span>
           <span className="font-bold text-white">
-            {formatCurrency(burn.spent, 'INR')}{' '}
-            <span className="text-slate-400 font-normal">
-              / {formatCurrency(burn.budget, 'INR')}
-            </span>
+            {formatCurrency(totalSpent, 'INR')}
           </span>
-        </div>
-
-        {/* Progress Track */}
-        <div className="h-2.5 w-full bg-white/[0.05] rounded-full overflow-hidden p-[1px]">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${burn.percentage}%` }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className={`h-full rounded-full ${
-              burn.percentage > 90
-                ? 'bg-rose-500'
-                : burn.percentage > 70
-                ? 'bg-amber-500'
-                : 'bg-gradient-to-r from-blue-600 to-indigo-500'
-            }`}
-          />
         </div>
 
         <div className="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
-          <span>{burn.percentage}% of limit utilized</span>
-          <span className="text-emerald-400 font-medium">
-            {formatCurrency(burn.remaining, 'INR')} remaining
-          </span>
+          <span>Across {Object.keys(categoryTotals).length} active categories</span>
+          <span className="text-blue-400 font-medium">Real-time dynamic</span>
         </div>
       </div>
 
@@ -116,7 +91,16 @@ export const SpendingOverview: React.FC = () => {
               className="flex items-center justify-between p-2 rounded-xl bg-white/[0.02] border border-white/[0.04] text-xs hover:bg-white/[0.04] transition-colors"
             >
               <div className="flex items-center gap-2">
-                <span className="text-base">{cat.icon}</span>
+                <div
+                  className="w-7 h-7 rounded-[8px] flex items-center justify-center border"
+                  style={{
+                    backgroundColor: `${cat.color}15`,
+                    borderColor: `${cat.color}30`,
+                    color: cat.color,
+                  }}
+                >
+                  <CategoryIcon name={cat.icon} className="w-3.5 h-3.5" />
+                </div>
                 <span className="font-medium text-slate-200">{cat.name}</span>
               </div>
 

@@ -33,7 +33,7 @@ html[data-sb-color-mode='dark'] .rollie-theme,
   --radius: 0.5rem;
   --tracking-heading: -0.05em;
   --tracking-button: -0.05em;
-  --tracking-body: -0.03em;
+  --tracking-body: -0.015em;
   --sb-card-corner: superellipse(1.5);
   --sb-card-tl-radius: 2.25rem;
   --sb-card-tr-radius: 2.25rem;
@@ -64,13 +64,13 @@ html[data-sb-color-mode='dark'] .rollie-theme,
   --sb-badge-corner: round;
   --sb-badge-radius: 500px;
   --sb-card-shadow: none;
-  --sb-card-background-image: linear-gradient(180deg, rgba(17, 17, 23, 0.75) 0%, rgba(13, 14, 18, 0.85) 100%);
-  --color-background: #111117;
+  --sb-card-background-image: linear-gradient(145deg, rgba(31, 39, 58, 0.66) 0%, rgba(17, 21, 33, 0.76) 100%);
+  --color-background: #0b0f18;
 }
 
 @theme inline {
   --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-background: #111117;
+  --color-background: #0b0f18;
   --color-foreground: #e6e7ea;
 }
 
@@ -80,16 +80,70 @@ html[data-sb-color-mode='dark'] .rollie-theme,
     border-color: rgba(255, 255, 255, 0.06);
   }
   html {
-    background-color: #111117;
+    background-color: #0b0f18;
     color: #e6e7ea;
     -webkit-font-smoothing: antialiased;
     letter-spacing: var(--tracking-body);
   }
   body {
-    background-color: #111117;
-    min-height: 100vh;
+    background-color: #0b0f18;
+    min-height: 100dvh;
     overflow-x: hidden;
   }
+}
+
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(45, 91, 196, 0.24), transparent 48%),
+    radial-gradient(ellipse at 92% 26%, rgba(83, 67, 178, 0.16), transparent 42%),
+    radial-gradient(ellipse at 8% 82%, rgba(27, 99, 143, 0.13), transparent 44%),
+    #080d18;
+}
+
+/* ============================================================
+   Superbridge Rollie Technical Grid Background
+   ============================================================ */
+.sb-rollie-background {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    /* Precision Crosshair (+) intersections every 160px */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' fill='none'%3E%3Cpath d='M0 0v5 M0 0h5 M160 0v5 M160 0h-5 M0 160v-5 M0 160h5 M160 160v-5 M160 160h-5' stroke='rgba(255,255,255,0.22)' stroke-width='1'/%3E%3C/svg%3E"),
+    /* Luminous focal intersection dots every 160px */
+    radial-gradient(circle at 0px 0px, rgba(255, 255, 255, 0.28) 1.25px, transparent 1.75px),
+    /* Major grid lines every 160px */
+    linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    /* Minor micro-grid lines every 40px */
+    linear-gradient(to right, rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
+  background-size:
+    160px 160px,
+    160px 160px,
+    160px 160px,
+    160px 160px,
+    40px 40px,
+    40px 40px;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 32%, #000 20%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 32%, #000 20%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+}
+
+.app-shell-grid {
+  /* Retained for backward-compat / fallback */
+  background: transparent;
 }
 
 /* Superbridge Component Primitives */
@@ -99,8 +153,32 @@ html[data-sb-color-mode='dark'] .rollie-theme,
   backdrop-filter: var(--sb-card-backdrop-filter);
   -webkit-backdrop-filter: var(--sb-card-backdrop-filter);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   position: relative;
+}
+
+.sb-modal-backdrop {
+  background: transparent !important;
+  backdrop-filter: blur(7px) saturate(115%);
+  -webkit-backdrop-filter: blur(7px) saturate(115%);
+}
+
+@media (max-width: 639px) {
+  .safe-modal-frame {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+  }
+}
+
+.sb-modal-glass {
+  background: linear-gradient(145deg, rgba(40, 50, 73, 0.64), rgba(20, 27, 44, 0.58)) !important;
+  border-color: rgba(210, 222, 255, 0.15) !important;
+  box-shadow:
+    0 32px 100px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(36px) saturate(150%);
+  -webkit-backdrop-filter: blur(36px) saturate(150%);
+  max-height: min(88dvh, 720px);
 }
 
 .sb-pullout {
@@ -165,4 +243,15 @@ html[data-sb-color-mode='dark'] .rollie-theme,
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

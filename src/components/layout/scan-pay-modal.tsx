@@ -29,13 +29,13 @@ export const ScanPayModal: React.FC<ScanPayModalProps> = ({ isOpen, onClose }) =
 
     try {
       await createTxMutation.mutateAsync({
-        title: note.trim() || `Instant UPI to ${upiId || 'Merchant'}`,
+        title: note.trim() || (upiId.trim() ? `UPI to ${upiId.trim()}` : 'Quick UPI Payment'),
         totalAmount: numeric,
         currency: 'INR',
         category: 'Shopping',
         type: 'PERSONAL',
         paidById: 'usr-self',
-        notes: `Paid via Instant QR Scan to ${upiId || 'Verified UPI Merchant'}`,
+        notes: upiId.trim() ? `Paid to ${upiId.trim()}` : undefined,
       });
 
       setIsSuccess(true);
@@ -53,13 +53,13 @@ export const ScanPayModal: React.FC<ScanPayModalProps> = ({ isOpen, onClose }) =
 
   return (
     <AnimatePresence>
-      <div className="z-50 fixed inset-0 flex justify-center items-end md:items-center p-1 md:p-0">
+      <div className="safe-modal-frame z-50 fixed inset-0 flex justify-center items-end p-3 sm:items-center sm:p-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md"
+          className="sb-modal-backdrop fixed inset-0"
         />
 
         <motion.div
@@ -68,7 +68,7 @@ export const ScanPayModal: React.FC<ScanPayModalProps> = ({ isOpen, onClose }) =
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', stiffness: 360, damping: 28 }}
-          className="relative z-10 w-full max-h-[90vh] md:max-w-md bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
+          className="sb-modal-glass relative z-10 w-full max-h-[90vh] md:max-w-md bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">

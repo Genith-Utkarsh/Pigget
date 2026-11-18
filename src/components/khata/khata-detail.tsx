@@ -27,7 +27,7 @@ export const KhataDetail: React.FC<KhataDetailProps> = ({ contact, onBack }) => 
 
   // Sort chronological for running balance calculation, then reverse for display
   const contactTxs = allTransactions.filter(
-    (tx) => tx.contactId === contact.id || tx.type === 'KHATA_GIVE' || tx.type === 'KHATA_GOT'
+    (tx) => tx.contactId === contact.id
   );
 
   const isOwed = contact.netBalance > 0;

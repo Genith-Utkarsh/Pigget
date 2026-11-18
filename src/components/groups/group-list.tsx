@@ -127,8 +127,8 @@ export const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                   className="p-4 flex items-center justify-between hover:border-white/20 transition-all bg-[#17181e]/90"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-[18px] bg-blue-600/15 border border-blue-500/20 flex items-center justify-center text-xl shadow-inner">
-                      👥
+                    <div className="w-12 h-12 rounded-[18px] bg-blue-600/15 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-inner">
+                      <Users className="w-5 h-5" />
                     </div>
                     <div>
                       <h4 className="text-sm font-semibold text-slate-100 group-hover:text-blue-400 transition-colors">

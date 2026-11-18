@@ -28,7 +28,7 @@ export const PillToggle: React.FC<PillToggleProps> = ({
     <div
       role="tablist"
       className={cn(
-        "inline-flex items-center bg-[#121318]/90 backdrop-blur-2xl border border-white/10 rounded-[24px] p-1.5 shadow-card-specular relative",
+        "inline-flex max-w-full items-center overflow-x-auto scrollbar-hidden bg-[#121318]/90 backdrop-blur-2xl border border-white/10 rounded-[24px] p-1.5 shadow-card-specular relative",
         className
       )}
     >
@@ -44,7 +44,7 @@ export const PillToggle: React.FC<PillToggleProps> = ({
             transition={{ type: "spring", stiffness: 450, damping: 25 }}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "relative px-4 py-2 text-sm font-medium rounded-[18px] transition-colors duration-200 flex items-center gap-2 select-none z-10 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50",
+              "relative shrink-0 rounded-[18px] px-2.5 py-2 text-xs font-medium transition-colors duration-200 flex items-center gap-1.5 select-none z-10 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-400/50 sm:px-4 sm:text-sm sm:gap-2",
               isActive ? "text-white" : "text-slate-400 hover:text-slate-200"
             )}
           >

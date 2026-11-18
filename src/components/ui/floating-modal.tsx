@@ -57,7 +57,7 @@ export const FloatingModal: React.FC<FloatingModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+        <div className="safe-modal-frame fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center sm:p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -65,7 +65,7 @@ export const FloatingModal: React.FC<FloatingModalProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md"
+            className="sb-modal-backdrop fixed inset-0"
             aria-hidden="true"
           />
 
@@ -78,7 +78,7 @@ export const FloatingModal: React.FC<FloatingModalProps> = ({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
             className={cn(
-              "relative z-10 w-full bg-[#121317]/95 backdrop-blur-2xl border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl shadow-black/80 overflow-hidden flex flex-col max-h-[90vh]",
+              "sb-modal-glass relative z-10 w-full bg-[#121317]/95 backdrop-blur-2xl border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl shadow-black/80 overflow-hidden flex flex-col max-h-[90vh]",
               sizeStyles[size],
               className
             )}

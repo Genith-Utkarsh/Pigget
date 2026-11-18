@@ -43,22 +43,24 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleReset = async () => {
-    if (confirm('Are you sure you want to reset all data back to the demo ledger?')) {
+    if (confirm('Are you sure you want to clear all ledger data and start completely fresh?')) {
+      localStorage.removeItem('pigget_transactions_v3');
+      localStorage.removeItem('pigget_contacts_v3');
+      localStorage.removeItem('pigget_groups_v3');
       await resetMutation.mutateAsync();
-      alert('Data reset to demo state.');
-      onClose();
+      window.location.reload();
     }
   };
 
   return (
     <AnimatePresence>
-      <div className="z-50 fixed inset-0 flex justify-center items-end md:items-center p-1 md:p-0">
+      <div className="safe-modal-frame z-50 fixed inset-0 flex justify-center items-end p-3 sm:items-center sm:p-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md"
+          className="sb-modal-backdrop fixed inset-0"
         />
 
         <motion.div
@@ -67,7 +69,7 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', stiffness: 360, damping: 28 }}
-          className="relative z-10 w-full max-h-[85vh] md:max-w-md bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
+          className="sb-modal-glass relative z-10 w-full max-h-[85vh] md:max-w-md bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
@@ -174,9 +176,9 @@ export const VaultModal: React.FC<VaultModalProps> = ({ isOpen, onClose }) => {
               >
                 <div className="flex items-center gap-2.5">
                   <RotateCcw className="w-4 h-4 text-rose-400" />
-                  <span className="font-medium">Reset Data to Initial Demo</span>
+                  <span className="font-medium">Clear All Data (Start Fresh)</span>
                 </div>
-                <span className="text-[10px] text-rose-400 font-semibold">RESET</span>
+                <span className="text-[10px] text-rose-400 font-semibold">CLEAR</span>
               </button>
             </div>
           </div>

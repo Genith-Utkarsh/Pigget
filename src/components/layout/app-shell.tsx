@@ -11,7 +11,7 @@ import { CategoriesModal } from './categories-modal';
 import { ScanPayModal } from './scan-pay-modal';
 import { ReportsModal } from './reports-modal';
 import { VaultModal } from './vault-modal';
-import { MoreToolsModal } from './more-tools-modal';
+import { RegisterServiceWorker } from '@/components/pwa/register-service-worker';
 import { useExpenseStore } from '@/lib/stores/expense-store';
 
 export interface AppShellProps {
@@ -32,17 +32,35 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
     setIsWalletOpen,
   } = useExpenseStore();
 
+  const [upiId, setUpiId] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('pigget_user_upi') || '';
+    }
+    return '';
+  });
+  const [bankAccount, setBankAccount] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('pigget_user_bank') || '';
+    }
+    return '';
+  });
+  const [isSaved, setIsSaved] = React.useState(false);
+
+  const handleSaveWallet = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pigget_user_upi', upiId.trim());
+      localStorage.setItem('pigget_user_bank', bankAccount.trim());
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    }
+  };
+
   const handleDockItemClick = (id: string) => {
     switch (id) {
       case 'overview':
         setActiveTab('personal');
         setActiveDockModal(null);
-        break;
-      case 'categories':
-        setActiveDockModal('categories');
-        break;
-      case 'scan_pay':
-        setActiveDockModal('scan_pay');
         break;
       case 'shared_khata':
         setActiveTab('khata');
@@ -52,32 +70,21 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         setActiveTab('split');
         setActiveDockModal(null);
         break;
-      case 'reports':
-        setActiveDockModal('reports');
-        break;
-      case 'vault':
-        setActiveDockModal('vault');
-        break;
-      case 'more_tools':
-        setActiveDockModal('more_tools');
-        break;
       default:
         break;
     }
   };
 
-  // Determine which dock item is visually active
-  let currentDockActive = 'overview';
-  if (activeDockModal) {
-    currentDockActive = activeDockModal;
-  } else if (activeTab === 'khata') {
-    currentDockActive = 'shared_khata';
-  } else if (activeTab === 'split') {
-    currentDockActive = 'ledgers';
-  }
+  const currentDockActive =
+    activeTab === 'khata' ? 'shared_khata' : activeTab === 'split' ? 'ledgers' : 'overview';
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#08090d] text-slate-100 overflow-x-hidden selection:bg-blue-600/30 selection:text-white">
+    <div
+      data-sb-color-mode="dark"
+      translate="no"
+      className="rollie-theme notranslate bg-transparent text-foreground w-full min-h-[100dvh] relative transition-colors duration-1000 flex flex-col items-center overflow-x-hidden selection:bg-blue-600/30 selection:text-white"
+    >
+      <RegisterServiceWorker />
       {/* Animated Ambient Glow Mesh Background */}
       <AmbientBackground />
 
@@ -86,8 +93,6 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         onActivityClick={() => setIsActivityOpen(true)}
         onMenuClick={() => setIsMenuOpen(true)}
         onWalletClick={() => setIsWalletOpen(true)}
-        onGlobeClick={() => setActiveDockModal('more_tools')}
-        onCurrencyClick={() => setActiveDockModal('more_tools')}
       />
 
       {/* Main Content Area */}
@@ -119,7 +124,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         onClose={() => setIsMenuOpen(false)}
       />
 
-      {/* Dock Modals for All 8 Features */}
+      {/* Secondary feature modals */}
       <CategoriesModal
         isOpen={activeDockModal === 'categories'}
         onClose={() => setActiveDockModal(null)}
@@ -140,39 +145,48 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         onClose={() => setActiveDockModal(null)}
       />
 
-      <MoreToolsModal
-        isOpen={activeDockModal === 'more_tools'}
-        onClose={() => setActiveDockModal(null)}
-      />
-
       {/* Wallet Modal */}
       <FloatingModal
         isOpen={isWalletOpen}
         onClose={() => setIsWalletOpen(false)}
-        title="Primary UPI & Connected Accounts"
-        description="Encrypted banking rails linked for instant reconciliation"
+        title="UPI & Payment Rails"
+        description="Configure your personal UPI ID for payment requests and settlement links"
         size="sm"
       >
-        <div className="space-y-3 py-2">
-          <div className="p-4 rounded-2xl bg-[#17181e]/90 border border-white/5 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-400 font-medium">Default Account</p>
-              <p className="text-sm font-semibold text-white">HDFC Bank •• 4092</p>
-            </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-              Active
-            </span>
+        <form onSubmit={handleSaveWallet} className="space-y-3.5 py-2">
+          <div className="space-y-1.5">
+            <label className="text-xs text-slate-400 font-medium block">
+              Personal UPI ID (VPA)
+            </label>
+            <input
+              type="text"
+              value={upiId}
+              onChange={(e) => setUpiId(e.target.value)}
+              placeholder="e.g. username@upi"
+              className="w-full bg-[#17181e] text-sm text-white px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-blue-500/50"
+            />
           </div>
-          <div className="p-4 rounded-2xl bg-[#17181e]/90 border border-white/5 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-400 font-medium">Primary UPI VPA</p>
-              <p className="text-sm font-semibold text-white">pigget@hdfc</p>
-            </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400">
-              Verified
-            </span>
+
+          <div className="space-y-1.5">
+            <label className="text-xs text-slate-400 font-medium block">
+              Bank / Account Nickname (Optional)
+            </label>
+            <input
+              type="text"
+              value={bankAccount}
+              onChange={(e) => setBankAccount(e.target.value)}
+              placeholder="e.g. Primary Checking"
+              className="w-full bg-[#17181e] text-sm text-white px-3.5 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-blue-500/50"
+            />
           </div>
-        </div>
+
+          <button
+            type="submit"
+            className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors cursor-pointer"
+          >
+            {isSaved ? 'Saved to Local Vault ✓' : 'Save Payment Details'}
+          </button>
+        </form>
       </FloatingModal>
     </div>
   );

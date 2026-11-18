@@ -15,7 +15,7 @@ const SPLIT_METHODS: { id: SplitMethod; label: string }[] = [
   { id: 'equal', label: '= Equal' },
   { id: 'exact', label: '₹ Exact' },
   { id: 'percentage', label: '% Pct' },
-  { id: 'shares', label: '⚖️ Shares' },
+  { id: 'shares', label: 'Shares' },
 ];
 
 export const AddGroupExpenseModal: React.FC = () => {
@@ -39,6 +39,7 @@ export const AddGroupExpenseModal: React.FC = () => {
   // Group creation state
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupCurrency, setNewGroupCurrency] = useState('INR');
+  const [memberNamesInput, setMemberNamesInput] = useState('');
 
   const createTxMutation = useCreateTransaction();
   const createGroupMutation = useCreateGroup();
@@ -105,21 +106,38 @@ export const AddGroupExpenseModal: React.FC = () => {
     if (!newGroupName.trim()) return;
 
     try {
+      const parsedMembers = memberNamesInput
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const membersList = [
+        {
+          id: `gm-self-${Date.now()}`,
+          groupId: '',
+          userId: 'usr-self',
+          user: { id: 'usr-self', name: 'You', email: '' },
+        },
+        ...parsedMembers.map((name, idx) => ({
+          id: `gm-${idx}-${Date.now()}`,
+          groupId: '',
+          userId: `usr-member-${idx}-${Date.now()}`,
+          user: { id: `usr-member-${idx}-${Date.now()}`, name, email: '' },
+        })),
+      ];
+
       await createGroupMutation.mutateAsync({
         name: newGroupName.trim(),
         createdById: 'usr-self',
         simplifyDebts: true,
         currency: newGroupCurrency,
-        members: [
-          {
-            id: `gm-self-${Date.now()}`,
-            groupId: '',
-            userId: 'usr-self',
-          },
-        ],
+        memberCount: membersList.length,
+        userBalance: 0,
+        members: membersList,
       });
 
       setNewGroupName('');
+      setMemberNamesInput('');
       toggleCreateGroup(false);
     } catch (err) {
       console.error(err);
@@ -165,6 +183,19 @@ export const AddGroupExpenseModal: React.FC = () => {
               <option value="EUR">EUR (€)</option>
               <option value="AED">AED (AED)</option>
             </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-slate-400 block mb-1 uppercase tracking-wider">
+              Group Members (Optional)
+            </label>
+            <input
+              type="text"
+              value={memberNamesInput}
+              onChange={(e) => setMemberNamesInput(e.target.value)}
+              placeholder="e.g. Rahul, Priya, Amit (comma separated)"
+              className="w-full bg-[#17181e] text-slate-200 placeholder-slate-500 px-3.5 py-2.5 rounded-xl border border-white/[0.08] focus:outline-none focus:border-blue-500/50 text-sm"
+            />
           </div>
 
           <div className="flex items-center gap-3 pt-2">
@@ -258,7 +289,7 @@ export const AddGroupExpenseModal: React.FC = () => {
             >
               {members.map((m) => (
                 <option key={m.userId} value={m.userId}>
-                  {m.userId === 'usr-self' ? 'You (usr-self)' : m.user?.name || m.userId}
+                  {m.userId === 'usr-self' ? 'You' : m.user?.name || m.userId}
                 </option>
               ))}
             </select>

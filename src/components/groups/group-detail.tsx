@@ -104,8 +104,8 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ group, onBack }) => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-indigo-600/30 to-blue-600/30 border border-white/10 flex items-center justify-center text-2xl shadow-inner">
-              👥
+            <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-indigo-600/30 to-blue-600/30 border border-white/10 flex items-center justify-center text-indigo-400 shadow-inner">
+              <Users className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{group.name}</h2>
@@ -263,36 +263,44 @@ export const GroupDetail: React.FC<GroupDetailProps> = ({ group, onBack }) => {
               </GlassButton>
             </GlassCard>
           ) : (
-            groupTransactions.map((tx) => (
-              <GlassCard
-                key={tx.id}
-                variant="secondary"
-                className="p-3.5 flex items-center justify-between bg-[#17181e]/90"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-[14px] bg-blue-600/15 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
-                    <Receipt className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-slate-100">{tx.title}</div>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                      <span>Paid by {tx.paidById === 'usr-self' ? 'You' : 'Rohit'}</span>
-                      <span>•</span>
-                      <span>{new Date(tx.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+            groupTransactions.map((tx) => {
+              const payerMember = group.members?.find((m) => m.userId === tx.paidById);
+              const payerName =
+                tx.paidById === 'usr-self'
+                  ? 'You'
+                  : payerMember?.user?.name || payerMember?.userId || 'Member';
+
+              return (
+                <GlassCard
+                  key={tx.id}
+                  variant="secondary"
+                  className="p-3.5 flex items-center justify-between bg-[#17181e]/90"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-[14px] bg-blue-600/15 border border-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
+                      <Receipt className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-100">{tx.title}</div>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                        <span>Paid by {payerName}</span>
+                        <span>•</span>
+                        <span>{new Date(tx.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="text-right">
-                  <div className="text-base font-bold text-white">
-                    {formatCurrency(tx.totalAmount, tx.currency)}
+                  <div className="text-right">
+                    <div className="text-base font-bold text-white">
+                      {formatCurrency(tx.totalAmount, tx.currency)}
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {tx.splits?.length ? `${tx.splits.length + 1} split ways` : 'equal split'}
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-400">
-                    {tx.splits?.length ? `${tx.splits.length + 1} split ways` : 'equal split'}
-                  </div>
-                </div>
-              </GlassCard>
-            ))
+                </GlassCard>
+              );
+            })
           )}
         </div>
       </div>

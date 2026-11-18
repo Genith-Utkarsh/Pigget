@@ -12,7 +12,6 @@ import { KhataEntryModal } from '@/components/khata/khata-entry-modal';
 import { GroupList } from '@/components/groups/group-list';
 import { GroupDetail } from '@/components/groups/group-detail';
 import { AddGroupExpenseModal } from '@/components/groups/add-group-expense-modal';
-import { SpendingOverview } from '@/components/analytics/spending-overview';
 import { useExpenseStore } from '@/lib/stores/expense-store';
 import { useKhataStore } from '@/lib/stores/khata-store';
 import { useGroupStore } from '@/lib/stores/group-store';
@@ -29,18 +28,18 @@ export default function DashboardPage() {
   const tabs: PillTab[] = [
     {
       id: 'personal',
-      label: 'Personal Spend',
+      label: 'Personal',
       icon: <Sparkles className="w-3.5 h-3.5 text-blue-400" />,
     },
     {
       id: 'split',
-      label: 'Group Split',
+      label: 'Groups',
       icon: <Users className="w-3.5 h-3.5 text-indigo-400" />,
       badge: groups.length.toString(),
     },
     {
       id: 'khata',
-      label: 'Khata Book',
+      label: 'Khata',
       icon: <BookOpen className="w-3.5 h-3.5 text-lime-400" />,
       badge: contacts.length.toString(),
     },
@@ -60,34 +59,29 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content Area with Spring Tab Transitions */}
-      <div className="w-full max-w-[620px] px-2">
+      <div className="w-full max-w-[540px] px-2">
         <AnimatePresence mode="wait">
           {activeTab === 'personal' && (
             <motion.div
               key="personal-tab"
-              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              initial={{ opacity: 0, y: 8, scale: 0.99 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-              className="space-y-6 flex flex-col items-center"
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 30, mass: 0.8 }}
+              className="flex flex-col items-center w-full"
             >
-              {/* Main Superbridge-style Centered 430px Card */}
+              {/* Main Superbridge-style Centered Card */}
               <ExpenseCard />
-
-              {/* Compact Monthly Analytics Overview Widget */}
-              <div className="w-full max-w-[430px]">
-                <SpendingOverview />
-              </div>
             </motion.div>
           )}
 
           {activeTab === 'split' && (
             <motion.div
               key="split-tab"
-              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              initial={{ opacity: 0, y: 8, scale: 0.99 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 30, mass: 0.8 }}
             >
               {selectedGroup ? (
                 <GroupDetail
@@ -103,10 +97,10 @@ export default function DashboardPage() {
           {activeTab === 'khata' && (
             <motion.div
               key="khata-tab"
-              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              initial={{ opacity: 0, y: 8, scale: 0.99 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 30, mass: 0.8 }}
             >
               {selectedContact ? (
                 <KhataDetail

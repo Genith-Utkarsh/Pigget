@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Download, PieChart, ArrowUpRight } from 'lucide-react';
 import { useTransactions } from '@/lib/hooks/use-transactions';
 import { formatCurrency } from '@/lib/utils/currency';
-import { calculateMonthlyBurn } from '@/lib/utils/calculations';
 import Link from 'next/link';
 
 export interface ReportsModalProps {
@@ -17,8 +16,6 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) =
   const { data: transactions = [] } = useTransactions();
 
   if (!isOpen) return null;
-
-  const burn = calculateMonthlyBurn(transactions, undefined, undefined, 50000);
 
   // Group by type
   const personalTotal = transactions
@@ -33,6 +30,11 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) =
   const khataGot = transactions
     .filter((tx) => tx.type === 'KHATA_GOT')
     .reduce((s, tx) => s + Number(tx.totalAmount), 0);
+
+  const totalSpent = personalTotal + splitTotal;
+  const expenseCount = transactions.filter(
+    (t) => t.type === 'PERSONAL' || t.type === 'GROUP_SPLIT'
+  ).length;
 
   const handleExportCSV = () => {
     const headers = 'ID,Date,Title,Amount,Currency,Category,Type,Notes\n';
@@ -56,13 +58,13 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) =
 
   return (
     <AnimatePresence>
-      <div className="z-50 fixed inset-0 flex justify-center items-end md:items-center p-1 md:p-0">
+      <div className="safe-modal-frame z-50 fixed inset-0 flex justify-center items-end p-3 sm:items-center sm:p-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md"
+          className="sb-modal-backdrop fixed inset-0"
         />
 
         <motion.div
@@ -71,7 +73,7 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) =
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', stiffness: 360, damping: 28 }}
-          className="relative z-10 w-full max-h-[88vh] md:max-w-lg bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
+          className="sb-modal-glass relative z-10 w-full max-h-[88vh] md:max-w-lg bg-[#121317]/95 border border-white/[0.09] rounded-t-[28px] md:rounded-[30px] shadow-2xl p-6 flex flex-col gap-4 overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.06]">
@@ -99,13 +101,13 @@ export const ReportsModal: React.FC<ReportsModalProps> = ({ isOpen, onClose }) =
             <div className="grid grid-cols-2 gap-3">
               <div className="p-4 rounded-2xl bg-[#17181e] border border-white/5">
                 <span className="text-[11px] text-slate-400 block font-medium">
-                  Monthly Spend
+                  Total Spent
                 </span>
                 <span className="text-xl font-bold text-white mt-1 block">
-                  {formatCurrency(burn.spent, 'INR')}
+                  {formatCurrency(totalSpent, 'INR')}
                 </span>
                 <span className="text-[10px] text-emerald-400 mt-1 block">
-                  {burn.percentage}% of 50k budget
+                  {expenseCount} {expenseCount === 1 ? 'expense' : 'expenses'} recorded
                 </span>
               </div>
 

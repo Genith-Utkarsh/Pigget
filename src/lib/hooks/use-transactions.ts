@@ -2,26 +2,25 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Transaction, TransactionType } from '@/lib/types';
-import { MOCK_TRANSACTIONS } from '@/lib/utils/mock-data';
 
-const STORAGE_KEY = 'pigget_transactions_v2';
+const STORAGE_KEY = 'pigget_transactions_v3';
 
 function getInitialTransactions(): Transaction[] {
   if (typeof window === 'undefined') {
-    return [...MOCK_TRANSACTIONS];
+    return [];
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
   } catch (e) {
     console.error('Failed to read transactions from localStorage', e);
   }
-  return [...MOCK_TRANSACTIONS];
+  return [];
 }
 
 let localTransactions: Transaction[] = getInitialTransactions();
@@ -158,8 +157,8 @@ export function useResetTransactions() {
 
   return useMutation({
     mutationFn: async () => {
-      saveTransactions([...MOCK_TRANSACTIONS]);
-      return [...MOCK_TRANSACTIONS];
+      saveTransactions([]);
+      return [];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
