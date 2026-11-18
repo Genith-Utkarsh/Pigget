@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  avatarUrl String?
+  upiId     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contacts       Contact[]
+  createdGroups  Group[]
+  groupMembers   GroupMember[]
+  paidTransactions Transaction[]
+  paidSplits     TransactionSplit[] @relation("PaidByUser")
+  owedSplits     TransactionSplit[] @relation("OwedByUser")
+  categories     Category[]
+  budgets        Budget[]
+  recurringBills RecurringBill[]
+}
+
+model Contact {
+  id           String   @id @default(cuid())
+  ownerId      String
+  contactName  String
+  contactPhone String?
+  contactEmail String?
+  netBalance   Decimal  @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  owner        User          @relation(fields: [ownerId], references: [id])
+  transactions Transaction[]
+
+  @@index([ownerId])
+}
+
+model Group {
+  id            String   @id @default(cuid())
+  name          String
+  createdById   String
+  simplifyDebts Boolean  @default(false)
+  currency      String   @default("INR")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  createdBy    User           @relation(fields: [createdById], references: [id])
+  members      GroupMember[]
+  transactions Transaction[]
+
+  @@index([createdById])
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+enum TransactionType {
+  PERSONAL
+  GROUP_SPLIT
+  KHATA_GIVE
+  KHATA_GOT
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  title       String
+  totalAmount Decimal
+  currency    String          @default("INR")
+  category    String?
+  type        TransactionType @default(PERSONAL)
+  paidById    String
+  groupId     String?
+  contactId   String?
+  receiptUrl  String?
+  notes       String?
+  createdAt   DateTime        @default(now())
+
+  paidBy  User     @relation(fields: [paidById], references: [id])
+  group   Group?   @relation(fields: [groupId], references: [id])
+  contact Contact? @relation(fields: [contactId], references: [id])
+  splits  TransactionSplit[]
+
+  @@index([paidById])
+  @@index([groupId])
+  @@index([contactId])
+  @@index([createdAt])
+}
+
+model TransactionSplit {
+  id           String   @id @default(cuid())
+  transactionId String
+  paidByUserId String
+  owedByUserId String
+  amountOwed   Decimal
+  isSettled    Boolean  @default(false)
+  settledAt    DateTime?
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  paidByUser  User        @relation("PaidByUser", fields: [paidByUserId], references: [id])
+  owedByUser  User        @relation("OwedByUser", fields: [owedByUserId], references: [id])
+
+  @@index([transactionId])
+  @@index([paidByUserId])
+  @@index([owedByUserId])
+}
+
+model Category {
+  id     String  @id @default(cuid())
+  name   String
+  icon   String?
+  color  String?
+  userId String?
+
+  user           User?          @relation(fields: [userId], references: [id])
+  budgets        Budget[]
+  recurringBills RecurringBill[]
+
+  @@index([userId])
+}
+
+model Budget {
+  id           String  @id @default(cuid())
+  userId       String
+  categoryId   String
+  monthlyLimit Decimal
+  month        Int
+  year         Int
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([userId, categoryId, month, year])
+  @@index([userId])
+}
+
+enum BillFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model RecurringBill {
+  id          String        @id @default(cuid())
+  userId      String
+  title       String
+  amount      Decimal
+  categoryId  String
+  frequency   BillFrequency @default(MONTHLY)
+  nextDueDate DateTime
+  isActive    Boolean       @default(true)
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+}
